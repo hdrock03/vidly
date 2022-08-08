@@ -1,21 +1,8 @@
+const {genre, validate} = require('../models/genres')
 const mongoose = require('mongoose')
 const express = require('express')
 const { string } = require('joi')
-const Joi = require('joi')
 const route = express.Router()
-
-
-const genreSchema = new mongoose.Schema({ // genre jo khud se likh rhe the usko hatake ya schema bna rhe hai
-    name: {
-        type: String,
-        isrequired: true,
-        minlength: 5,
-        maxlength: 50
-    }
-})
-
-const Genre = new mongoose.model('Genre', genreSchema) // model banaye uske baad
-
 
 route.get('/', async (req, res) => {
     const genres = await Genre.find().sort('name') // Yha Genre me condition lagaye aur yeh promise return krta hai to await lagye aur (req,res se phle async)
@@ -77,11 +64,6 @@ route.delete('/:id', async (req,res) => {
     res.send()
 })
 
-function validateGenre(genre) {
-    const schema = {
-        name: Joi.string().min(3).required()
-    }
-    return Joi.validate(genre, schema)
-}
+
 
 module.exports = route
