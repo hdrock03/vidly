@@ -9,7 +9,7 @@ mongoose.connect('mongodb://localhost/vidly')
     .catch(() => console.log('cannot connect to mongodb'))
 
 app.use(express.json()) 
-app.set('/api/genres' , genres)
+app.use('/api/genres' , genres)
 
 
 const port = process.env.PORT || 3000

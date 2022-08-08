@@ -1,66 +1,87 @@
+const mongoose = require('mongoose')
 const express = require('express')
+const { string } = require('joi')
+const Joi = require('joi')
 const route = express.Router()
 
 
-const genres = [
-    { id: 1, name: 'Action' },  
-    { id: 2, name: 'Horror' },  
-    { id: 3, name: 'Romance' },  
-  ];
-
-route.get('/', (req, res) => {
-    res.send(genres)
-})
-
-route.post('/', (req,res) => {
-    const genre = {
-        id: genres.length +1,
-        name: req.body.name
+const genreSchema = new mongoose.Schema({ // genre jo khud se likh rhe the usko hatake ya schema bna rhe hai
+    name: {
+        type: String,
+        isrequired: true,
+        minlength: 5,
+        maxlength: 50
     }
+})
 
-    genres.push(genre)
+const Genre = new mongoose.model('Genre', genreSchema) // model banaye uske baad
+
+
+route.get('/', async (req, res) => {
+    const genres = await Genre.find().sort('name') // Yha Genre me condition lagaye aur yeh promise return krta hai to await lagye aur (req,res se phle async)
     res.send(genres)
 })
 
-route.get('/:id', (req,res) => {
-    const genreId = req.params.id;
-    const genre = genres.find(g => g.id === parseInt(genreId))
+route.post('/', async (req,res) => {
+    // let use kr rhe hai qki genre ko niche frse use krna h
+    let genre = new Genre ({ // yaha khd se name daal rhe h mtlv new object create kr rhe h to Genre ko use krenge
+        name: req.body.name // yaha se id hata diye qki mongodb khd se id provide krta hai
+    })
+
+    // genres.push(genre)
+    genre =  await genre.save() // instead of pushing it we need to save it to db
+    res.send(genre)
+})
+
+route.get('/:id',async (req,res) => {
+    const genre = await Genre.findById(req.params.id)
+    
     if(!genre) res.status(404).send('The course with given id is not available')
     res.send(genre)
 })  
 
-module.exports = route
 
-route.put('/:id', (req,res) =>{
-    const genreId = req.params.id;
-    const genre = genres.find(g => g.id === parseInt(genreId))
+
+route.put('/:id', async (req,res) =>{
+    const {error}= validateGenre(req.body);
+    
+    if(error){
+        res.status(400).send(error.details[0].message)
+        return
+    }
+
+   const genre = await Genre.findByIdAndUpdate(req.params.id, {name: req.body.name}, {new:true} )// yaha apn id khoj ke update kr rhe hai phle
+    // 1st argument jo id likhenge wo 2nd name jo dalna hai 3rd 
+    
 
     if(!genre) res.status(404).send('The course with given id is not available')
 
-    const schema = Joi.object({
-        name: Joi.string().min(3).required()
-    })
-    // console.log(schema);
-    const validation= schema.validate(req.body);
+    // const schema = Joi.object({
+    //     name: Joi.string().min(3).required()
+    // })
+    // // console.log(schema);
+   
     
-    if(validation.error){
-        res.status(400).send(validation.error.details[0].message)
-        return
-    }
-    genre.name = req.body.name;
     res.send(genre)
 
     
 })
 
-route.delete('/:id', (req,res) => {
+route.delete('/:id', async (req,res) => {
+   const genre = await Genre.findByIdAndRemove(req.params.id)
     const genreId = req.params.id;
-    const genre = genres.find(g => g.id === parseInt(genreId))
+    
 
     if(!genre) res.status(404).send('The course with given id is not available')
-
-    const index = genres.indexOf(genre)
-    genres.splice(index,1)
-
+    
     res.send()
 })
+
+function validateGenre(genre) {
+    const schema = {
+        name: Joi.string().min(3).required()
+    }
+    return Joi.validate(genre, schema)
+}
+
+module.exports = route
