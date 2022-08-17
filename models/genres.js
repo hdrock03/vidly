@@ -1,5 +1,7 @@
 const mongoose = require('mongoose')
-const express = require('express')
+const express = require('express');
+const Joi = require('joi')
+
 
 const genreSchema = new mongoose.Schema({ // genre jo khud se likh rhe the usko hatake ya schema bna rhe hai
     name: {
@@ -21,3 +23,4 @@ function validateGenre(genre) {
 
 exports.Genre = Genre;
 exports.validate = validateGenre;
+exports.genreSchema = genreSchema;

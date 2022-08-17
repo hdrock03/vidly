@@ -11,8 +11,17 @@
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.1",
-    "joi": "^17.6.0",
-    "mongoose": "^6.5.1",
+    "joi": "^13.7.0",
+    "mongoose": "^6.5.2",
     "nodemon": "^2.0.19"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hdrock03/vidly.git"
+  },
+  "keywords": [],
+  "bugs": {
+    "url": "https://github.com/hdrock03/vidly/issues"
+  },
+  "homepage": "https://github.com/hdrock03/vidly#readme"
 }
