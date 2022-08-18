@@ -14,6 +14,7 @@ route.post('/', async(req,res) => {
     if(error) return res.status(400).send(error.details[0].message)
 
     const genre = await Genre.findById(req.body.genreId) // yaha check kr rhe h ki jb client genreId dalega to wo sahi genre hai ki nh aur agr sahi h to genre me object save kr dega
+    // console.log(genre);
     if(!genre) return res.status(400).send('genre id is not available')
 
     let movie = new Movie ({
