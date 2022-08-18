@@ -5,6 +5,8 @@ const {Movie} = require('../models/movies')
 const {Customer} = require('../models/customers')
 const express = require('express')
 const route = express.Router();
+const Fawn = require('fawn')
+Fawn.init(mongoose)
 
 route.get('/', async (req, res) => {
     const rentals = await Rental.find().sort('-dateOut');
@@ -35,12 +37,25 @@ route.get('/', async (req, res) => {
         dailyRentalRate: movie.dailyRentalRate
       }
     });
-    rental = await rental.save(); // yaha rental bhi save ho rha h aur niche movie bhi dono agr sahi time me save nh hua to numberinstock ka number sahi pata nh chelga
-                                // isiliye apn transaction use krte h
-    movie.numberInStock-- ; // yaha decrement kr rhe h
-    movie.save();
-    
+    // rental = await rental.save(); // yaha rental bhi save ho rha h aur niche movie bhi dono agr sahi time me save nh hua to numberinstock ka number sahi pata nh chelga
+    //                             // isiliye apn transaction use krte h
+    // movie.numberInStock-- ; // yaha decrement kr rhe h
+    // movie.save();
+
+    try{
+    new Fawn.Task()
+        .save('rentals', rental) // yaha direct collection pe kaam kr rhe h isilye rentals likhe h
+        .update('movies', {_id: movies._id}, { // here we r updating movies collection
+            $inc: {numberInStock: -1}
+        })
+        .run();
+
     res.send(rental);
+    }
+    catch(ex){
+        res.status(500).send('something failed')    
+    }
+    
   });
   
   route.get('/:id', async (req, res) => {
