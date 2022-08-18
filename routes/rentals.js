@@ -6,7 +6,7 @@ const {Customer} = require('../models/customers')
 const express = require('express')
 const route = express.Router();
 const Fawn = require('fawn')
-Fawn.init(mongoose)
+Fawn.init('mongodb://localhost/vidly')
 
 route.get('/', async (req, res) => {
     const rentals = await Rental.find().sort('-dateOut');
@@ -43,6 +43,7 @@ route.get('/', async (req, res) => {
     // movie.save();
 
     try{
+        console.log('hi');
     new Fawn.Task()
         .save('rentals', rental) // yaha direct collection pe kaam kr rhe h isilye rentals likhe h
         .update('movies', {_id: movies._id}, { // here we r updating movies collection
