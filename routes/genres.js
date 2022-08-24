@@ -1,4 +1,6 @@
-const {genre, validate} = require('../models/genres')
+const {Genre, validate, genreSchema} = require('../models/genres')
+const auth = require('../middleware/auth')
+const admin = require('../middleware/admin')
 const mongoose = require('mongoose')
 const express = require('express')
 const { string } = require('joi')
@@ -9,7 +11,8 @@ route.get('/', async (req, res) => {
     res.send(genres)
 })
 
-route.post('/', async (req,res) => {
+route.post('/', auth , async (req,res) => {
+    // console.log('hi');
     // let use kr rhe hai qki genre ko niche frse use krna h
     let genre = new Genre ({ // yaha khd se name daal rhe h mtlv new object create kr rhe h to Genre ko use krenge
         name: req.body.name // yaha se id hata diye qki mongodb khd se id provide krta hai
@@ -54,7 +57,7 @@ route.put('/:id', async (req,res) =>{
     
 })
 
-route.delete('/:id', async (req,res) => {
+route.delete('/:id',[auth, admin], async (req,res) => {
    const genre = await Genre.findByIdAndRemove(req.params.id)
     const genreId = req.params.id;
     

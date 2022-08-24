@@ -1,4 +1,4 @@
-
+const auth = require('../middleware/auth')
 const bcrypt = require('bcrypt')
 const _ = require('lodash')
 const {User, validate} = require('../models/user')
@@ -6,6 +6,9 @@ const mongoose = require('mongoose')
 const express = require('express')
 const route = express.Router()
 
+route.get('/me', auth, async (req, res) => {
+  const user =  await User.findById(req.user._id).select('-password')
+})
 route.post('/', async (req, res) => {
     const {error} = validate(req.body);
     if(error) return res.status(400).send(error.details[0].message)
@@ -35,6 +38,7 @@ route.post('/', async (req, res) => {
    
     const token = user.generateAuthToken();
     res.header('x-auth-token', token).send(_.pick(user, ['_id','name', 'email'])) // we are using pick method 1 argument is which object we need to operate and then 2nd which property we need to take
+    res.send(user)
 })
 
 module.exports = route
