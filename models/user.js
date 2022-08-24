@@ -1,9 +1,10 @@
+const config = require('config')
+const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 const express = require('express');
 const Joi = require('joi')
- 
 
-const User = new mongoose.model('User', new mongoose.Schema({ 
+const userSchema = new mongoose.Schema({ 
     name: {
         type: String,
         isrequired: true,
@@ -24,7 +25,16 @@ const User = new mongoose.model('User', new mongoose.Schema({
         maxlength: 1024
     }
 
-})) 
+})
+
+// adding a method in schema
+userSchema.methods.generateAuthToken = function() {
+    const token = jwt.sign({_id : this._id}, config.get('jwtPrivateKey')) // instead of user we are using this becoz generateAuthToken is referring to user
+    return token;
+}
+
+
+const User = new mongoose.model('User', userSchema) 
 
 function validateUser(user) {
     const schema = {

@@ -1,5 +1,4 @@
-const config = require('config')
-const jwt = require('jsonwebtoken')
+
 const bcrypt = require('bcrypt')
 const _ = require('lodash')
 const {User, validate} = require('../models/user')
@@ -33,8 +32,8 @@ route.post('/', async (req, res) => {
     //     email: user.email
     // })
 
-    //setting up the header
-    const token = jwt.sign({_id : user._id}, config.get('jwtPrivateKey'))
+   
+    const token = user.generateAuthToken();
     res.header('x-auth-token', token).send(_.pick(user, ['_id','name', 'email'])) // we are using pick method 1 argument is which object we need to operate and then 2nd which property we need to take
 })
 
